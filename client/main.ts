@@ -90,6 +90,41 @@ function renderUsersList(): void {
   });
 }
 
+// Toast Notification System
+const toastContainer = document.getElementById('toast-container') as HTMLElement;
+
+function showToast(message: string, icon?: string, dotColor?: string): void {
+  if (!toastContainer) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+
+  if (dotColor) {
+    const dot = document.createElement('span');
+    dot.className = 'toast-dot';
+    dot.style.backgroundColor = dotColor;
+    toast.appendChild(dot);
+  } else if (icon) {
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'toast-icon';
+    iconSpan.textContent = icon;
+    toast.appendChild(iconSpan);
+  }
+
+  const textSpan = document.createElement('span');
+  textSpan.textContent = message;
+  toast.appendChild(textSpan);
+
+  toastContainer.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('hiding');
+    setTimeout(() => {
+      toast.remove();
+    }, 250);
+  }, 3200);
+}
+
 // Instantiate and Connect WebSocket Client
 wsClient = new WebSocketClient({
   onInitState: (state) => {
@@ -115,12 +150,16 @@ wsClient = new WebSocketClient({
     activeUsers.set(user.id, user);
     renderUsersList();
     engine.updateRemoteUsers(activeUsers);
+    showToast(`${user.name} joined the room`, '👋', user.color);
   },
 
   onUserLeft: (userId) => {
+    const user = activeUsers.get(userId);
+    const name = user ? user.name : 'A collaborator';
     activeUsers.delete(userId);
     renderUsersList();
     engine.updateRemoteUsers(activeUsers);
+    showToast(`${name} left the room`, '🚪');
   },
 
   onCursorUpdate: (userId, x, y) => {
@@ -188,19 +227,59 @@ toolEraserBtn.addEventListener('click', () => {
   updatePreviewDot();
 });
 
+// Color Popover & Custom Picker Elements
+const btnColorPopover = document.getElementById('btn-color-popover') as HTMLButtonElement;
+const colorPopover = document.getElementById('color-popover') as HTMLElement;
+const colorActiveCircle = document.getElementById('color-active-circle') as HTMLElement;
+const recentColorsGrid = document.getElementById('recent-colors-grid') as HTMLElement;
+
+// Recent Colors State (Session memory, up to 5 colors)
+let recentColors: string[] = ['#2563eb', '#ef4444', '#10b981', '#f59e0b', '#0f172a'];
+
+function renderRecentColors(): void {
+  if (!recentColorsGrid) return;
+  recentColorsGrid.innerHTML = '';
+  if (recentColors.length === 0) {
+    recentColorsGrid.innerHTML = '<span class="recent-empty-hint">No colors used yet</span>';
+    return;
+  }
+
+  recentColors.forEach((color) => {
+    const swatch = document.createElement('div');
+    swatch.className = `color-swatch ${color === engine.color ? 'active' : ''}`;
+    swatch.style.backgroundColor = color;
+    swatch.setAttribute('data-color', color);
+    swatch.title = `Recent: ${color}`;
+    swatch.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectColor(color);
+    });
+    recentColorsGrid.appendChild(swatch);
+  });
+}
+
+function addToRecentColors(hex: string): void {
+  const norm = hex.toLowerCase();
+  recentColors = [norm, ...recentColors.filter((c) => c.toLowerCase() !== norm)].slice(0, 5);
+  renderRecentColors();
+}
+
 // UI Event Handlers: Colors
 function selectColor(hex: string): void {
   engine.color = hex;
-  colorCustomInput.value = hex;
-  colorCustomPreview.style.backgroundColor = hex;
+  if (colorCustomInput) colorCustomInput.value = hex;
+  if (colorActiveCircle) colorActiveCircle.style.backgroundColor = hex;
 
-  colorSwatches.forEach((el) => {
-    if (el.getAttribute('data-color') === hex) {
+  // Highlight all matching swatches across quick-swatches and curated palette
+  document.querySelectorAll('.color-swatch').forEach((el) => {
+    if (el.getAttribute('data-color')?.toLowerCase() === hex.toLowerCase()) {
       el.classList.add('active');
     } else {
       el.classList.remove('active');
     }
   });
+
+  addToRecentColors(hex);
 
   if (engine.tool === 'eraser') {
     engine.tool = 'brush';
@@ -211,24 +290,66 @@ function selectColor(hex: string): void {
   updatePreviewDot();
 }
 
-colorSwatches.forEach((swatch) => {
-  swatch.addEventListener('click', () => {
-    const color = swatch.getAttribute('data-color');
-    if (color) selectColor(color);
+// Bind all initial static swatches (quick-swatches and curated palette)
+function bindPaletteSwatches(): void {
+  document.querySelectorAll('.color-swatch').forEach((swatch) => {
+    swatch.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const color = swatch.getAttribute('data-color');
+      if (color) selectColor(color);
+    });
   });
-});
+}
+bindPaletteSwatches();
 
-colorCustomInput.addEventListener('input', (e) => {
-  const color = (e.target as HTMLInputElement).value;
-  selectColor(color);
-});
+// Custom Color Input Event
+if (colorCustomInput) {
+  colorCustomInput.addEventListener('input', (e) => {
+    const color = (e.target as HTMLInputElement).value;
+    selectColor(color);
+  });
+  colorCustomInput.addEventListener('change', (e) => {
+    const color = (e.target as HTMLInputElement).value;
+    selectColor(color);
+  });
+}
+
+// Popover Toggle & Click Outside Handler
+if (btnColorPopover && colorPopover) {
+  btnColorPopover.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isClosed = colorPopover.classList.contains('hidden');
+    if (isClosed) {
+      colorPopover.classList.remove('hidden');
+      btnColorPopover.classList.add('active');
+    } else {
+      colorPopover.classList.add('hidden');
+      btnColorPopover.classList.remove('active');
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as Node;
+    if (!colorPopover.contains(target) && !btnColorPopover.contains(target)) {
+      colorPopover.classList.add('hidden');
+      btnColorPopover.classList.remove('active');
+    }
+  });
+}
+
+renderRecentColors();
 
 // UI Event Handlers: Stroke Width
+const strokeValBadge = document.getElementById('stroke-val-badge') as HTMLElement;
+
 function updatePreviewDot(): void {
   const size = engine.strokeWidth;
-  strokePreviewDot.style.width = `${Math.min(size, 16)}px`;
-  strokePreviewDot.style.height = `${Math.min(size, 16)}px`;
+  strokePreviewDot.style.width = `${Math.min(size, 18)}px`;
+  strokePreviewDot.style.height = `${Math.min(size, 18)}px`;
   strokePreviewDot.style.backgroundColor = engine.tool === 'eraser' ? '#94a3b8' : engine.color;
+  if (strokeValBadge) {
+    strokeValBadge.textContent = `${size}px`;
+  }
 }
 
 strokeSlider.addEventListener('input', (e) => {
@@ -236,6 +357,34 @@ strokeSlider.addEventListener('input', (e) => {
   engine.strokeWidth = width;
   updatePreviewDot();
 });
+
+// Shortcuts Modal Elements
+const btnShortcuts = document.getElementById('btn-shortcuts') as HTMLButtonElement;
+const shortcutsModal = document.getElementById('shortcuts-modal') as HTMLElement;
+const btnCloseShortcuts = document.getElementById('btn-close-shortcuts') as HTMLButtonElement;
+
+function toggleShortcutsModal(show?: boolean): void {
+  if (!shortcutsModal) return;
+  const isHidden = shortcutsModal.classList.contains('hidden');
+  const shouldOpen = show !== undefined ? show : isHidden;
+  if (shouldOpen) {
+    shortcutsModal.classList.remove('hidden');
+  } else {
+    shortcutsModal.classList.add('hidden');
+  }
+}
+
+if (btnShortcuts) {
+  btnShortcuts.addEventListener('click', () => toggleShortcutsModal(true));
+}
+if (btnCloseShortcuts) {
+  btnCloseShortcuts.addEventListener('click', () => toggleShortcutsModal(false));
+}
+if (shortcutsModal) {
+  shortcutsModal.addEventListener('click', (e) => {
+    if (e.target === shortcutsModal) toggleShortcutsModal(false);
+  });
+}
 
 // Undo / Redo buttons dispatch to WebSocket server
 undoBtn.addEventListener('click', () => {
@@ -264,18 +413,102 @@ if (exportBtn) {
   });
 }
 
-// Room Switching and Share Link
-roomDisplay.addEventListener('click', () => {
-  const currentUrl = window.location.href;
-  const target = prompt(
-    `Current Room Link:\n${currentUrl}\n\nEnter a new room name to join, or click Cancel:`,
-    currentRoomId
-  );
-  if (target && target.trim() && target.trim() !== currentRoomId) {
+// Share Room Modal Wiring (Hero Moment)
+const btnShareRoom = document.getElementById('btn-share-room') as HTMLButtonElement | null;
+const shareModal = document.getElementById('share-modal') as HTMLElement | null;
+const btnCloseShare = document.getElementById('btn-close-share') as HTMLButtonElement | null;
+const shareUrlInput = document.getElementById('share-url-input') as HTMLInputElement | null;
+const btnCopyShareUrl = document.getElementById('btn-copy-share-url') as HTMLButtonElement | null;
+const copyBtnIcon = document.getElementById('copy-btn-icon') as HTMLElement | null;
+const copyBtnText = document.getElementById('copy-btn-text') as HTMLElement | null;
+const switchRoomInput = document.getElementById('switch-room-input') as HTMLInputElement | null;
+const btnSwitchRoomGo = document.getElementById('btn-switch-room-go') as HTMLButtonElement | null;
+
+function toggleShareModal(open: boolean): void {
+  if (!shareModal) return;
+  if (open) {
+    if (shareUrlInput) shareUrlInput.value = window.location.href;
+    shareModal.classList.remove('hidden');
+    shareModal.classList.add('visible');
+    if (btnCopyShareUrl) {
+      btnCopyShareUrl.classList.remove('copied');
+      if (copyBtnIcon) copyBtnIcon.textContent = '📋';
+      if (copyBtnText) copyBtnText.textContent = 'Copy Link';
+    }
+    setTimeout(() => {
+      if (shareUrlInput) shareUrlInput.select();
+    }, 50);
+  } else {
+    shareModal.classList.remove('visible');
+    shareModal.classList.add('hidden');
+  }
+}
+
+if (btnShareRoom) {
+  btnShareRoom.addEventListener('click', () => toggleShareModal(true));
+}
+if (btnCloseShare) {
+  btnCloseShare.addEventListener('click', () => toggleShareModal(false));
+}
+if (shareModal) {
+  shareModal.addEventListener('click', (e) => {
+    if (e.target === shareModal) toggleShareModal(false);
+  });
+}
+
+if (btnCopyShareUrl) {
+  btnCopyShareUrl.addEventListener('click', async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+      } else if (shareUrlInput) {
+        shareUrlInput.select();
+        document.execCommand('copy');
+      }
+    } catch {
+      if (shareUrlInput) {
+        shareUrlInput.select();
+        document.execCommand('copy');
+      }
+    }
+
+    // Hero moment: Copied feedback animation
+    btnCopyShareUrl.classList.add('copied');
+    if (copyBtnIcon) copyBtnIcon.textContent = '✅';
+    if (copyBtnText) copyBtnText.textContent = 'Copied!';
+    showToast('Room link copied to clipboard! Share it to collaborate live.', '🔗', '#10b981');
+
+    setTimeout(() => {
+      btnCopyShareUrl.classList.remove('copied');
+      if (copyBtnIcon) copyBtnIcon.textContent = '📋';
+      if (copyBtnText) copyBtnText.textContent = 'Copy Link';
+    }, 2500);
+  });
+}
+
+function handleSwitchRoom(): void {
+  if (!switchRoomInput) return;
+  const val = switchRoomInput.value.trim();
+  if (val && val !== currentRoomId) {
     const nextUrl = new URL(window.location.href);
-    nextUrl.searchParams.set('room', target.trim());
+    nextUrl.searchParams.set('room', val);
     window.location.href = nextUrl.toString();
   }
+}
+
+if (btnSwitchRoomGo) {
+  btnSwitchRoomGo.addEventListener('click', handleSwitchRoom);
+}
+if (switchRoomInput) {
+  switchRoomInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleSwitchRoom();
+  });
+}
+
+// Clicking room display badge in status bar also opens Share/Room modal
+roomDisplay.addEventListener('click', () => {
+  toggleShareModal(true);
 });
 
 // FPS Counter Loop
@@ -297,9 +530,108 @@ function updateFps(now: number): void {
 }
 requestAnimationFrame(updateFps);
 
+// View Controls: Zoom & Grid Paper Toggle
+const btnZoomIn = document.getElementById('btn-zoom-in') as HTMLButtonElement;
+const btnZoomOut = document.getElementById('btn-zoom-out') as HTMLButtonElement;
+const btnZoomReset = document.getElementById('btn-zoom-reset') as HTMLButtonElement;
+const btnToggleGrid = document.getElementById('btn-toggle-grid') as HTMLButtonElement;
+const gridModeText = document.getElementById('grid-mode-text') as HTMLElement;
+
+function updateZoomDisplay(val: number): void {
+  if (btnZoomReset) {
+    btnZoomReset.textContent = `${Math.round(val * 100)}%`;
+  }
+}
+
+if (btnZoomIn) {
+  btnZoomIn.addEventListener('click', () => {
+    const next = engine.setZoom(engine.zoom + 0.15);
+    updateZoomDisplay(next);
+  });
+}
+
+if (btnZoomOut) {
+  btnZoomOut.addEventListener('click', () => {
+    const next = engine.setZoom(engine.zoom - 0.15);
+    updateZoomDisplay(next);
+  });
+}
+
+if (btnZoomReset) {
+  btnZoomReset.addEventListener('click', () => {
+    const next = engine.setZoom(1.0);
+    updateZoomDisplay(next);
+  });
+}
+
+// Grid Paper Modes: 'dots' | 'lines' | 'blank'
+type GridMode = 'dots' | 'lines' | 'blank';
+let currentGridMode: GridMode = 'dots';
+container.classList.add('grid-dots');
+
+function cycleGridMode(): void {
+  container.classList.remove('grid-dots', 'grid-lines', 'grid-blank');
+  if (currentGridMode === 'dots') {
+    currentGridMode = 'lines';
+    container.classList.add('grid-lines');
+    if (gridModeText) gridModeText.textContent = 'Grid: Lines';
+  } else if (currentGridMode === 'lines') {
+    currentGridMode = 'blank';
+    container.classList.add('grid-blank');
+    if (gridModeText) gridModeText.textContent = 'Grid: Blank';
+  } else {
+    currentGridMode = 'dots';
+    container.classList.add('grid-dots');
+    if (gridModeText) gridModeText.textContent = 'Grid: Dots';
+  }
+}
+
+if (btnToggleGrid) {
+  btnToggleGrid.addEventListener('click', cycleGridMode);
+}
+
 // Global Keyboard Shortcuts
 window.addEventListener('keydown', (e) => {
   if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+    return;
+  }
+
+  // Close modals on Escape
+  if (e.key === 'Escape') {
+    toggleShortcutsModal(false);
+    if (colorPopover) colorPopover.classList.add('hidden');
+    if (btnColorPopover) btnColorPopover.classList.remove('active');
+    return;
+  }
+
+  // Toggle shortcuts help with '?'
+  if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+    e.preventDefault();
+    toggleShortcutsModal();
+    return;
+  }
+
+  // Zoom shortcuts
+  if (e.key === '+' || e.key === '=') {
+    e.preventDefault();
+    btnZoomIn?.click();
+    return;
+  }
+  if (e.key === '-' || e.key === '_') {
+    e.preventDefault();
+    btnZoomOut?.click();
+    return;
+  }
+  if (e.key === '0') {
+    e.preventDefault();
+    btnZoomReset?.click();
+    return;
+  }
+
+  // Grid toggle shortcut
+  if (e.key === 'g' || e.key === 'G') {
+    e.preventDefault();
+    cycleGridMode();
     return;
   }
 

@@ -38,29 +38,73 @@
 
       <div class="divider"></div>
 
-      <!-- Color Palette -->
+      <!-- Color Selection & Popover -->
       <div class="color-picker-group">
-        <div class="color-swatch active" data-color="#2563eb" style="background-color: #2563eb;" title="Blue"></div>
-        <div class="color-swatch" data-color="#ef4444" style="background-color: #ef4444;" title="Red"></div>
-        <div class="color-swatch" data-color="#10b981" style="background-color: #10b981;" title="Green"></div>
-        <div class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;" title="Amber"></div>
-        <div class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;" title="Purple"></div>
-        <div class="color-swatch" data-color="#0f172a" style="background-color: #0f172a;" title="Black"></div>
+        <!-- Quick-access primary swatches -->
+        <div class="quick-swatches">
+          <div class="color-swatch active" data-color="#2563eb" style="background-color: #2563eb;" title="Blue"></div>
+          <div class="color-swatch" data-color="#ef4444" style="background-color: #ef4444;" title="Red"></div>
+          <div class="color-swatch" data-color="#10b981" style="background-color: #10b981;" title="Green"></div>
+          <div class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;" title="Amber"></div>
+          <div class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;" title="Purple"></div>
+          <div class="color-swatch" data-color="#0f172a" style="background-color: #0f172a;" title="Black"></div>
+        </div>
 
-        <div class="color-custom-wrapper" title="Custom color picker">
-          <input type="color" id="color-custom" class="color-custom-input" value="#2563eb" />
-          <div id="color-custom-preview" class="color-custom-preview" style="background-color: #2563eb;"></div>
+        <!-- Popover trigger for 14 curated swatches, custom picker & recent colors -->
+        <div class="color-dropdown-wrapper">
+          <button id="btn-color-popover" class="btn-color-popover" title="More Colors & Custom Picker">
+            <span id="color-active-circle" class="color-active-circle" style="background-color: #2563eb;"></span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <div id="color-popover" class="color-popover hidden">
+            <div class="popover-title-row">
+              <span>Palette</span>
+              <label class="custom-picker-label" title="Choose any custom color">
+                <span class="custom-picker-icon">🎨</span>
+                <span class="custom-picker-text">Custom</span>
+                <input type="color" id="color-custom" class="color-custom-input" value="#2563eb" />
+              </label>
+            </div>
+
+            <!-- 14 Curated Palette Swatches -->
+            <div class="curated-grid" id="curated-palette">
+              <div class="color-swatch" data-color="#0f172a" style="background-color: #0f172a;" title="Black"></div>
+              <div class="color-swatch" data-color="#475569" style="background-color: #475569;" title="Slate"></div>
+              <div class="color-swatch" data-color="#94a3b8" style="background-color: #94a3b8;" title="Gray"></div>
+              <div class="color-swatch" data-color="#ef4444" style="background-color: #ef4444;" title="Red"></div>
+              <div class="color-swatch" data-color="#f97316" style="background-color: #f97316;" title="Orange"></div>
+              <div class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;" title="Amber"></div>
+              <div class="color-swatch" data-color="#84cc16" style="background-color: #84cc16;" title="Lime"></div>
+              <div class="color-swatch" data-color="#10b981" style="background-color: #10b981;" title="Emerald"></div>
+              <div class="color-swatch" data-color="#06b6d4" style="background-color: #06b6d4;" title="Cyan"></div>
+              <div class="color-swatch" data-color="#2563eb" style="background-color: #2563eb;" title="Blue"></div>
+              <div class="color-swatch" data-color="#6366f1" style="background-color: #6366f1;" title="Indigo"></div>
+              <div class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;" title="Purple"></div>
+              <div class="color-swatch" data-color="#d946ef" style="background-color: #d946ef;" title="Fuchsia"></div>
+              <div class="color-swatch" data-color="#ec4899" style="background-color: #ec4899;" title="Pink"></div>
+            </div>
+
+            <!-- Recent Colors (Last 5 Used) -->
+            <div class="recent-colors-section">
+              <div class="recent-title">Recent Colors</div>
+              <div class="recent-grid" id="recent-colors-grid">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="divider"></div>
 
       <!-- Stroke Width -->
-      <div class="stroke-width-group" title="Stroke Width">
+      <div class="stroke-width-group" title="Adjust stroke width">
         <input type="range" id="stroke-slider" class="stroke-slider" min="1" max="48" value="4" />
-        <div class="stroke-preview-circle">
+        <div class="stroke-preview-container">
           <div id="stroke-preview-dot" class="stroke-preview-dot" style="width: 4px; height: 4px;"></div>
         </div>
+        <span id="stroke-val-badge" class="stroke-val-badge">4px</span>
       </div>
 
       <div class="divider"></div>
@@ -97,14 +141,31 @@
           </svg>
           <span>Export</span>
         </button>
+        <button id="btn-shortcuts" class="btn-tool btn-icon-only" title="Keyboard Shortcuts (?)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
       </div>
     </div>
 
-    <!-- Active Users List -->
+    <!-- Active Users List & Share Button -->
     <div class="users-panel" id="users-panel" title="Connected Users">
       <div class="users-list" id="users-list">
         <!-- User badges injected dynamically -->
       </div>
+      <button id="btn-share-room" class="btn-share-header" title="Share Room Link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        <span>Share</span>
+      </button>
     </div>
   </header>
 
@@ -112,6 +173,33 @@
   <main class="canvas-container" id="canvas-container">
     <!-- drawCanvas and overlayCanvas injected via CanvasEngine -->
   </main>
+
+  <!-- Live Toast Notifications Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Bottom Left Controls: Zoom & Grid Paper Toggle (Excalidraw-style) -->
+  <aside class="bottom-controls-left" aria-label="View Controls">
+    <div class="zoom-panel" title="Canvas Zoom (+ / - / 0)">
+      <button id="btn-zoom-out" class="btn-zoom" title="Zoom Out (-)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+      <button id="btn-zoom-reset" class="btn-zoom-reset" title="Reset Zoom (0)">100%</button>
+      <button id="btn-zoom-in" class="btn-zoom" title="Zoom In (+)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+
+    <button id="btn-toggle-grid" class="btn-view-toggle" title="Toggle Grid Paper Mode (G)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <line x1="3" y1="15" x2="21" y2="15"/>
+        <line x1="9" y1="3" x2="9" y2="21"/>
+        <line x1="15" y1="3" x2="15" y2="21"/>
+      </svg>
+      <span id="grid-mode-text">Grid: Dots</span>
+    </button>
+  </aside>
 
   <!-- Status & Network Bar -->
   <footer class="status-bar">
@@ -124,6 +212,60 @@
     <div id="stat-fps">60 FPS</div>
     <div id="stat-strokes">0 strokes</div>
   </footer>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="shortcuts-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>⚡ Keyboard Shortcuts</span>
+        </div>
+        <button id="btn-close-shortcuts" class="modal-close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-item"><span class="shortcut-desc">Brush Tool</span><kbd>B</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Eraser Tool</span><kbd>E</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Global Undo</span><div class="kbd-combo"><kbd>Ctrl</kbd><span>+</span><kbd>Z</kbd></div></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Global Redo</span><div class="kbd-combo"><kbd>Ctrl</kbd><span>+</span><kbd>Y</kbd></div></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Zoom In</span><kbd>+</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Zoom Out</span><kbd>-</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Reset Zoom</span><kbd>0</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Toggle Grid</span><kbd>G</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Shortcuts Help</span><kbd>?</kbd></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Room Modal (Hero Moment) -->
+  <div id="share-modal" class="modal-backdrop hidden">
+    <div class="modal-card share-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="share-icon-badge">🔗</span>
+          <span>Collaborate Live</span>
+        </div>
+        <button id="btn-close-share" class="modal-close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <p class="share-description">Invite teammates to draw on this whiteboard together with live synchronization.</p>
+      
+      <div class="share-link-box">
+        <input type="text" id="share-url-input" class="share-url-input" readonly />
+        <button id="btn-copy-share-url" class="btn-copy-link" title="Copy shareable link">
+          <span id="copy-btn-icon">📋</span>
+          <span id="copy-btn-text">Copy Link</span>
+        </button>
+      </div>
+
+      <div class="share-divider">
+        <span>or join a different room</span>
+      </div>
+
+      <div class="switch-room-row">
+        <input type="text" id="switch-room-input" class="switch-room-input" placeholder="Enter room name (e.g. design-crit)..." />
+        <button id="btn-switch-room-go" class="btn-switch-room">Join Room</button>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="/main.ts"></script>
 </body>

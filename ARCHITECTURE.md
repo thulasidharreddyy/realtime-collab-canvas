@@ -169,3 +169,23 @@ When two or more users draw or erase in the same region at the exact same time:
 ### Single-Process Static + WebSocket Hosting
 - **Decision**: One Node.js process serving both static Vite-compiled client assets and the WebSocket endpoint on the same HTTP server port.
 - **Rationale**: Eliminates Cross-Origin Resource Sharing (CORS) complexity, avoids managing multiple deployment containers, and allows zero-configuration deployment to single-port cloud hosts like Render, Fly.io, or Railway.
+
+---
+
+## 6. UI/UX Enhancements
+
+This polish pass elevated the interface toward tools like Excalidraw and Figma while strictly adhering to vanilla DOM/Canvas constraints:
+
+- **Expanded Color System**: 14-color curated palette dropdown, styled native color picker, and a session-persistent 5-slot recent colors strip.
+  - *Reasoning*: Eliminates friction in color selection while keeping active choice highlighted via concentric ring borders.
+- **Stroke-Width Feedback & Keyboard Shortcuts**: Visual preview dot scaling with the slider, plus a `?` modal listing shortcuts (`B`, `E`, `Ctrl+Z`, `Ctrl+Y`, `+`/`-`/`0`, `G`).
+  - *Reasoning*: Provides real-time visual confirmation of brush diameter before drawing and supports fast keyboard-driven workflows for power users.
+- **Canvas Zoom & Grid Paper Backgrounds**: Bottom-left zoom controls (25%–300%) using 2D context scale transforms, plus a 3-way background switcher (dots, graph paper, blank).
+  - *Reasoning*: Zooming via canvas transform matrices avoids recomputing underlying vector coordinates, while grid lines provide visual grounding common in professional whiteboard tools.
+- **Presence Toasts & Cursor Animations**: Join/leave toast alerts in the top-right corner with user color dots, and smooth opacity fading on remote cursors and nameplates during idle/disconnect.
+  - *Reasoning*: Proves multi-user synchronization to demo viewers without polluting the drawing layer.
+- **Room-Share Flow (Deliberate Hero Moment)**: Header "Share" button opening a collaboration dialog with the room URL, one-click copy with celebratory pulse animation (`copiedPulse`), and inline room switching.
+  - *Reasoning*: Selected as the single standout animated moment per design guidance, directly assisting multi-user testing and review.
+- **Unified Visual Identity & Responsive Chrome**: Indigo accent (`#4f46e5`), consistent border radii (8px/12px/16px), elevation shadows, uniform button micro-interactions (`translateY(-1px)` hover, `scale(0.96)` active), and media queries down to 480px.
+  - *Reasoning*: Replaces ad-hoc styles with a cohesive design system and prevents toolbar overflow on smaller screens.
+
