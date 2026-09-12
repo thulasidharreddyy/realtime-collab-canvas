@@ -407,6 +407,66 @@ function updateFps(now: number): void {
 }
 requestAnimationFrame(updateFps);
 
+// View Controls: Zoom & Grid Paper Toggle
+const btnZoomIn = document.getElementById('btn-zoom-in') as HTMLButtonElement;
+const btnZoomOut = document.getElementById('btn-zoom-out') as HTMLButtonElement;
+const btnZoomReset = document.getElementById('btn-zoom-reset') as HTMLButtonElement;
+const btnToggleGrid = document.getElementById('btn-toggle-grid') as HTMLButtonElement;
+const gridModeText = document.getElementById('grid-mode-text') as HTMLElement;
+
+function updateZoomDisplay(val: number): void {
+  if (btnZoomReset) {
+    btnZoomReset.textContent = `${Math.round(val * 100)}%`;
+  }
+}
+
+if (btnZoomIn) {
+  btnZoomIn.addEventListener('click', () => {
+    const next = engine.setZoom(engine.zoom + 0.15);
+    updateZoomDisplay(next);
+  });
+}
+
+if (btnZoomOut) {
+  btnZoomOut.addEventListener('click', () => {
+    const next = engine.setZoom(engine.zoom - 0.15);
+    updateZoomDisplay(next);
+  });
+}
+
+if (btnZoomReset) {
+  btnZoomReset.addEventListener('click', () => {
+    const next = engine.setZoom(1.0);
+    updateZoomDisplay(next);
+  });
+}
+
+// Grid Paper Modes: 'dots' | 'lines' | 'blank'
+type GridMode = 'dots' | 'lines' | 'blank';
+let currentGridMode: GridMode = 'dots';
+container.classList.add('grid-dots');
+
+function cycleGridMode(): void {
+  container.classList.remove('grid-dots', 'grid-lines', 'grid-blank');
+  if (currentGridMode === 'dots') {
+    currentGridMode = 'lines';
+    container.classList.add('grid-lines');
+    if (gridModeText) gridModeText.textContent = 'Grid: Lines';
+  } else if (currentGridMode === 'lines') {
+    currentGridMode = 'blank';
+    container.classList.add('grid-blank');
+    if (gridModeText) gridModeText.textContent = 'Grid: Blank';
+  } else {
+    currentGridMode = 'dots';
+    container.classList.add('grid-dots');
+    if (gridModeText) gridModeText.textContent = 'Grid: Dots';
+  }
+}
+
+if (btnToggleGrid) {
+  btnToggleGrid.addEventListener('click', cycleGridMode);
+}
+
 // Global Keyboard Shortcuts
 window.addEventListener('keydown', (e) => {
   if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -425,6 +485,30 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '?' || (e.shiftKey && e.key === '/')) {
     e.preventDefault();
     toggleShortcutsModal();
+    return;
+  }
+
+  // Zoom shortcuts
+  if (e.key === '+' || e.key === '=') {
+    e.preventDefault();
+    btnZoomIn?.click();
+    return;
+  }
+  if (e.key === '-' || e.key === '_') {
+    e.preventDefault();
+    btnZoomOut?.click();
+    return;
+  }
+  if (e.key === '0') {
+    e.preventDefault();
+    btnZoomReset?.click();
+    return;
+  }
+
+  // Grid toggle shortcut
+  if (e.key === 'g' || e.key === 'G') {
+    e.preventDefault();
+    cycleGridMode();
     return;
   }
 

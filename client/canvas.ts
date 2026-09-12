@@ -30,6 +30,7 @@ export class CanvasEngine {
   public color: string = '#2563eb'; // Default blue
   public strokeWidth: number = 4;
   public userId: string = 'local-user';
+  public zoom: number = 1.0;
 
   // Remote strokes in progress: strokeId -> array of points rendered so far
   private remoteInflightStrokes: Map<string, { stroke: Stroke; lastRenderedIndex: number }> = new Map();
@@ -122,10 +123,19 @@ export class CanvasEngine {
   public getCanvasPoint(e: PointerEvent): Point {
     const rect = this.overlayCanvas.getBoundingClientRect();
     return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+      x: (e.clientX - rect.left) / this.zoom,
+      y: (e.clientY - rect.top) / this.zoom,
       pressure: e.pressure > 0 ? e.pressure : 0.5,
     };
+  }
+
+  public setZoom(level: number): number {
+    this.zoom = Math.round(Math.max(0.3, Math.min(3.0, level)) * 100) / 100;
+    this.drawCanvas.style.transform = `scale(${this.zoom})`;
+    this.drawCanvas.style.transformOrigin = '0 0';
+    this.overlayCanvas.style.transform = `scale(${this.zoom})`;
+    this.overlayCanvas.style.transformOrigin = '0 0';
+    return this.zoom;
   }
 
   private handlePointerDown(e: PointerEvent): void {
