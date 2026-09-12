@@ -90,6 +90,41 @@ function renderUsersList(): void {
   });
 }
 
+// Toast Notification System
+const toastContainer = document.getElementById('toast-container') as HTMLElement;
+
+function showToast(message: string, icon?: string, dotColor?: string): void {
+  if (!toastContainer) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+
+  if (dotColor) {
+    const dot = document.createElement('span');
+    dot.className = 'toast-dot';
+    dot.style.backgroundColor = dotColor;
+    toast.appendChild(dot);
+  } else if (icon) {
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'toast-icon';
+    iconSpan.textContent = icon;
+    toast.appendChild(iconSpan);
+  }
+
+  const textSpan = document.createElement('span');
+  textSpan.textContent = message;
+  toast.appendChild(textSpan);
+
+  toastContainer.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('hiding');
+    setTimeout(() => {
+      toast.remove();
+    }, 250);
+  }, 3200);
+}
+
 // Instantiate and Connect WebSocket Client
 wsClient = new WebSocketClient({
   onInitState: (state) => {
@@ -115,12 +150,16 @@ wsClient = new WebSocketClient({
     activeUsers.set(user.id, user);
     renderUsersList();
     engine.updateRemoteUsers(activeUsers);
+    showToast(`${user.name} joined the room`, '👋', user.color);
   },
 
   onUserLeft: (userId) => {
+    const user = activeUsers.get(userId);
+    const name = user ? user.name : 'A collaborator';
     activeUsers.delete(userId);
     renderUsersList();
     engine.updateRemoteUsers(activeUsers);
+    showToast(`${name} left the room`, '🚪');
   },
 
   onCursorUpdate: (userId, x, y) => {

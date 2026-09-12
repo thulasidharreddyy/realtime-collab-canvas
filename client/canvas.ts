@@ -396,30 +396,82 @@ export class CanvasEngine {
     return entry.stroke;
   }
 
+  private cursorAnimStates: Map<string, { currentX: number; currentY: number; currentOpacity: number; targetOpacity: number; isLeaving: boolean }> = new Map();
+
   /**
    * Update remote users presence for cursor rendering.
    */
   public updateRemoteUsers(users: Map<string, User>): void {
     this.remoteUsers = users;
+
+    // Track entering and active users
+    users.forEach((user, id) => {
+      if (id === this.userId || !user.cursor) return;
+      const anim = this.cursorAnimStates.get(id);
+      if (!anim) {
+        this.cursorAnimStates.set(id, {
+          currentX: user.cursor.x,
+          currentY: user.cursor.y,
+          currentOpacity: 0.0,
+          targetOpacity: 1.0,
+          isLeaving: false,
+        });
+      } else {
+        anim.targetOpacity = 1.0;
+        anim.isLeaving = false;
+      }
+    });
+
+    // Mark leaving users for smooth fade-out
+    this.cursorAnimStates.forEach((anim, id) => {
+      if (!users.has(id)) {
+        anim.targetOpacity = 0.0;
+        anim.isLeaving = true;
+      }
+    });
   }
 
   /**
    * Continuous requestAnimationFrame loop to render remote cursors smoothly
-   * on the overlay canvas without triggering redraws of the drawing layer.
+   * with spring interpolation and fade-in / fade-out animations.
    */
   private startCursorRenderLoop(): void {
     const render = () => {
       this.overlayCtx.clearRect(0, 0, this.width, this.height);
       const now = Date.now();
 
-      this.remoteUsers.forEach((user) => {
-        // Skip current user (they have native system cursor)
-        if (user.id === this.userId || !user.cursor) return;
+      this.cursorAnimStates.forEach((anim, userId) => {
+        const user = this.remoteUsers.get(userId);
 
-        // Skip cursors inactive for > 15 seconds
-        if (user.lastActive && now - user.lastActive > 15000) return;
+        // Position interpolation (lerp)
+        if (user && user.cursor) {
+          anim.currentX += (user.cursor.x - anim.currentX) * 0.35;
+          anim.currentY += (user.cursor.y - anim.currentY) * 0.35;
 
-        this.drawRemoteCursor(this.overlayCtx, user);
+          // Fade out cursors inactive for > 15 seconds
+          if (user.lastActive && now - user.lastActive > 15000) {
+            anim.targetOpacity = 0.0;
+          } else if (!anim.isLeaving) {
+            anim.targetOpacity = 1.0;
+          }
+        } else {
+          anim.targetOpacity = 0.0;
+          anim.isLeaving = true;
+        }
+
+        // Opacity interpolation
+        anim.currentOpacity += (anim.targetOpacity - anim.currentOpacity) * 0.12;
+
+        // Cleanup completely faded leaving users
+        if (anim.currentOpacity <= 0.01 && anim.isLeaving) {
+          this.cursorAnimStates.delete(userId);
+          return;
+        }
+
+        if (anim.currentOpacity > 0.01) {
+          const displayUser = user || { id: userId, name: 'User', color: '#6366f1' };
+          this.drawRemoteCursor(this.overlayCtx, displayUser, anim.currentX, anim.currentY, anim.currentOpacity);
+        }
       });
 
       this.animFrameId = requestAnimationFrame(render);
@@ -431,13 +483,18 @@ export class CanvasEngine {
   /**
    * Draw an elegant pointer arrow and labeled pill badge for a remote user.
    */
-  private drawRemoteCursor(ctx: CanvasRenderingContext2D, user: User): void {
-    if (!user.cursor) return;
-    const { x, y } = user.cursor;
+  private drawRemoteCursor(
+    ctx: CanvasRenderingContext2D,
+    user: User,
+    x: number,
+    y: number,
+    opacity: number
+  ): void {
     const color = user.color || '#3b82f6';
     const name = user.name || 'User';
 
     ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
 
     // 1. Draw cursor pointer arrow
     ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
