@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Real-Time Collaborative Canvas</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <!-- Floating Top Control Bar -->
+  <header class="app-header">
+    <div class="toolbar" role="toolbar" aria-label="Drawing tools">
+      <div class="brand">
+        <span class="brand-badge">🎨</span>
+        <span>CollabCanvas</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Tools: Brush & Eraser -->
+      <div class="tool-group">
+        <button id="tool-brush" class="btn-tool active" title="Brush Tool (B)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"></path>
+            <path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"></path>
+          </svg>
+          <span>Brush</span>
+        </button>
+        <button id="tool-eraser" class="btn-tool" title="Eraser Tool (E)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path>
+            <path d="M22 21H7"></path>
+            <path d="m5 11 9 9"></path>
+          </svg>
+          <span>Eraser</span>
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Color Palette -->
+      <div class="color-picker-group">
+        <div class="color-swatch active" data-color="#2563eb" style="background-color: #2563eb;" title="Blue"></div>
+        <div class="color-swatch" data-color="#ef4444" style="background-color: #ef4444;" title="Red"></div>
+        <div class="color-swatch" data-color="#10b981" style="background-color: #10b981;" title="Green"></div>
+        <div class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;" title="Amber"></div>
+        <div class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;" title="Purple"></div>
+        <div class="color-swatch" data-color="#0f172a" style="background-color: #0f172a;" title="Black"></div>
+
+        <div class="color-custom-wrapper" title="Custom color picker">
+          <input type="color" id="color-custom" class="color-custom-input" value="#2563eb" />
+          <div id="color-custom-preview" class="color-custom-preview" style="background-color: #2563eb;"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Stroke Width -->
+      <div class="stroke-width-group" title="Stroke Width">
+        <input type="range" id="stroke-slider" class="stroke-slider" min="1" max="48" value="4" />
+        <div class="stroke-preview-circle">
+          <div id="stroke-preview-dot" class="stroke-preview-dot" style="width: 4px; height: 4px;"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Global History: Undo & Redo -->
+      <div class="tool-group">
+        <button id="btn-undo" class="btn-tool" title="Global Undo (Ctrl+Z)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7v6h6"></path>
+            <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+          </svg>
+          <span>Undo</span>
+        </button>
+        <button id="btn-redo" class="btn-tool" title="Global Redo (Ctrl+Y / Ctrl+Shift+Z)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 7v6h-6"></path>
+            <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path>
+          </svg>
+          <span>Redo</span>
+        </button>
+        <button id="btn-clear" class="btn-tool" title="Clear Canvas">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+          </svg>
+          <span>Clear</span>
+        </button>
+        <button id="btn-export" class="btn-tool" title="Export Artwork as PNG Image">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Export</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Users List -->
+    <div class="users-panel" id="users-panel" title="Connected Users">
+      <div class="users-list" id="users-list">
+        <!-- User badges injected dynamically -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Fullscreen Dual Canvas Container -->
+  <main class="canvas-container" id="canvas-container">
+    <!-- drawCanvas and overlayCanvas injected via CanvasEngine -->
+  </main>
+
+  <!-- Status & Network Bar -->
+  <footer class="status-bar">
+    <div class="status-indicator">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Connected</span>
+    </div>
+    <div class="room-tag" id="room-display" style="cursor: pointer;" title="Click to switch room or copy invite link">room: default</div>
+    <div id="stat-ping">0 ms</div>
+    <div id="stat-fps">60 FPS</div>
+    <div id="stat-strokes">0 strokes</div>
+  </footer>
+
+  <script type="module" src="/main.ts"></script>
+</body>
+</html>
