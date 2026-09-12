@@ -172,40 +172,20 @@ When two or more users draw or erase in the same region at the exact same time:
 
 ---
 
-## 6. UI/UX Enhancements & Interaction Design
+## 6. UI/UX Enhancements
 
-The UI/UX polish pass adds a clean, framework-free interface inspired by modern whiteboard tools (Excalidraw and Figma), adhering to the design-restraint principle:
+This polish pass elevated the interface toward tools like Excalidraw and Figma while strictly adhering to vanilla DOM/Canvas constraints:
 
-- **Expanded Color System**:
-  - Quick-access primary swatch row combined with a popover featuring 14 curated high-contrast swatches.
-  - Native `<input type="color">` custom picker with dynamic hex preview and active ring indicator.
-  - Session-persistent **Recent Colors strip** tracking the last 5 used colors with FIFO de-duplication.
-  - *Rationale*: Whiteboard users need fast access to standard annotation colors alongside arbitrary hex choices, without cluttering the primary toolbar.
-
-- **Stroke-Width Preview & Keyboard Shortcuts Overlay**:
-  - Live stroke-width badge and preview dot reflecting the exact brush diameter.
-  - Accessible shortcuts modal (`?`) documenting hotkeys (`B`, `E`, `Ctrl+Z`, `Ctrl+Y`, `+`/`-`/`0`, `G`).
-  - Consistent hover lift (`translateY(-1px)`) and press micro-interactions (`scale(0.96)`) across all toolbar buttons.
-  - *Rationale*: Physical hotkeys speed up professional workflows and make multi-tool switching effortless during demos.
-
-- **Canvas Zoom & Grid Paper Backgrounds**:
-  - Bottom-left zoom controls (`-`, `100%`, `+`) supporting scale factors from 25% to 300%.
-  - Zoom coordinates use context transform scaling (`ctx.scale(zoom, zoom)`) without changing underlying vector coordinate data.
-  - 3-way canvas background switcher (`Dots`, `Lines`, `None`).
-  - *Rationale*: Grid paper gives users spatial reference, and zoom controls signal professional tool maturity.
-
-- **Presence Real-Time Toasts & Cursor Animations**:
-  - Non-intrusive toast notifications when collaborators connect or disconnect, showing their assigned color badge.
-  - Remote cursors smoothly fade out upon disconnect or after 15 seconds of inactivity.
-  - *Rationale*: Toasts provide immediate, undeniable visual proof of multi-user synchronization to reviewers watching a demo.
-
-- **Deliberate Hero Moment: Room-Share Flow**:
-  - Prominent "Share" button opening a collaboration dialog with the direct room link.
-  - One-click copy with celebratory pulse animation (`@keyframes copiedPulse`), checkmark toggle, and confirmation toast.
-  - Inline room switcher enabling transitions between independent whiteboard rooms without browser prompt dialogs.
-  - *Rationale*: Per the design guidance, we chose a single polished hero moment that facilitates live reviewer testing rather than multiple competing canvas animations that might degrade frame rates.
-
-- **Design Restraint & Performance Guarantee**:
-  - All UI elements (modals, toasts, color popovers, status bars) are implemented as standard lightweight DOM elements with CSS transitions outside the canvas render loop.
-  - Canvas drawing operations remain 100% hardware-accelerated with zero frame drops or input lag.
+- **Expanded Color System**: 14-color curated palette dropdown, styled native color picker, and a session-persistent 5-slot recent colors strip.
+  - *Reasoning*: Eliminates friction in color selection while keeping active choice highlighted via concentric ring borders.
+- **Stroke-Width Feedback & Keyboard Shortcuts**: Visual preview dot scaling with the slider, plus a `?` modal listing shortcuts (`B`, `E`, `Ctrl+Z`, `Ctrl+Y`, `+`/`-`/`0`, `G`).
+  - *Reasoning*: Provides real-time visual confirmation of brush diameter before drawing and supports fast keyboard-driven workflows for power users.
+- **Canvas Zoom & Grid Paper Backgrounds**: Bottom-left zoom controls (25%–300%) using 2D context scale transforms, plus a 3-way background switcher (dots, graph paper, blank).
+  - *Reasoning*: Zooming via canvas transform matrices avoids recomputing underlying vector coordinates, while grid lines provide visual grounding common in professional whiteboard tools.
+- **Presence Toasts & Cursor Animations**: Join/leave toast alerts in the top-right corner with user color dots, and smooth opacity fading on remote cursors and nameplates during idle/disconnect.
+  - *Reasoning*: Proves multi-user synchronization to demo viewers without polluting the drawing layer.
+- **Room-Share Flow (Deliberate Hero Moment)**: Header "Share" button opening a collaboration dialog with the room URL, one-click copy with celebratory pulse animation (`copiedPulse`), and inline room switching.
+  - *Reasoning*: Selected as the single standout animated moment per design guidance, directly assisting multi-user testing and review.
+- **Unified Visual Identity & Responsive Chrome**: Indigo accent (`#4f46e5`), consistent border radii (8px/12px/16px), elevation shadows, uniform button micro-interactions (`translateY(-1px)` hover, `scale(0.96)` active), and media queries down to 480px.
+  - *Reasoning*: Replaces ad-hoc styles with a cohesive design system and prevents toolbar overflow on smaller screens.
 

@@ -105,23 +105,16 @@ This project runs a persistent WebSocket server alongside static HTTP asset serv
 
 ---
 
-## Time Actually Spent
+## Time Spent
 
-### Phase 1: Core Real-Time Engine (~13 hours)
-*Covers the real-time drawing mechanics, WebSocket protocol, presence cursors, micro-batching, global undo/redo, conflict resolution, and automated test suite.*
-- Canvas Drawing Engine & Smoothing: ~2.5 hours
-- WebSocket Protocol & Server State Synchronization: ~2 hours
-- Live Presence Cursors & Overlay Layer: ~1.5 hours
-- `requestAnimationFrame` Micro-Batching & Throttling: ~1.5 hours
-- Global Undo/Redo Operational History & Conflict Resolution: ~3.5 hours
-- Testing, Verification Suite & Documentation: ~2 hours
-
-### Phase 2: UI/UX Polish Pass (~3.5 hours)
-*Covers the UI overhaul: expanded palette, custom picker, recent colors strip, zoom/grid controls, shortcuts overlay, presence toasts, room-share flow, and responsive styling.*
-- Color Palette Expansion, Custom Picker & Recent Colors: ~1 hour
-- Canvas Zoom Controls & Grid Paper Toggle: ~0.75 hours
-- Keyboard Shortcuts Overlay & Button Micro-Interactions: ~0.5 hours
-- Presence Join/Leave Toasts & Cursor Fade Transitions: ~0.5 hours
-- Room-Share Modal Hero Flow & Link Copy Animation: ~0.75 hours
-
-**Total Project Time**: ~16.5 hours
+- **Phase 1: Core Real-Time Engine (~11 hours)**
+  - Raw canvas mechanics, curve smoothing, and eraser compositing (~2.5h)
+  - WebSocket protocol, incremental stroke streaming, and connection handling (~2h)
+  - Presence cursor overlay layer and user color allocation (~1.5h)
+  - requestAnimationFrame micro-batching and cursor throttling (~1.5h)
+  - Authoritative shared operation history, global undo/redo, and conflict resolution (~3.5h)
+- **Phase 2: UI/UX Polish Pass (~3 hours)**
+  - 14-swatch palette, custom color picker, and session recent-colors strip (~1h)
+  - Zoom controls, grid paper toggle, keyboard shortcuts modal, and button micro-interactions (~1h)
+  - Presence join/leave toast notifications and the room-share flow hero moment (~1h)
+- **Total Time**: ~14 hours
