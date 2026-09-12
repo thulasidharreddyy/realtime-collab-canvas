@@ -301,11 +301,16 @@ if (btnColorPopover && colorPopover) {
 renderRecentColors();
 
 // UI Event Handlers: Stroke Width
+const strokeValBadge = document.getElementById('stroke-val-badge') as HTMLElement;
+
 function updatePreviewDot(): void {
   const size = engine.strokeWidth;
-  strokePreviewDot.style.width = `${Math.min(size, 16)}px`;
-  strokePreviewDot.style.height = `${Math.min(size, 16)}px`;
+  strokePreviewDot.style.width = `${Math.min(size, 18)}px`;
+  strokePreviewDot.style.height = `${Math.min(size, 18)}px`;
   strokePreviewDot.style.backgroundColor = engine.tool === 'eraser' ? '#94a3b8' : engine.color;
+  if (strokeValBadge) {
+    strokeValBadge.textContent = `${size}px`;
+  }
 }
 
 strokeSlider.addEventListener('input', (e) => {
@@ -313,6 +318,34 @@ strokeSlider.addEventListener('input', (e) => {
   engine.strokeWidth = width;
   updatePreviewDot();
 });
+
+// Shortcuts Modal Elements
+const btnShortcuts = document.getElementById('btn-shortcuts') as HTMLButtonElement;
+const shortcutsModal = document.getElementById('shortcuts-modal') as HTMLElement;
+const btnCloseShortcuts = document.getElementById('btn-close-shortcuts') as HTMLButtonElement;
+
+function toggleShortcutsModal(show?: boolean): void {
+  if (!shortcutsModal) return;
+  const isHidden = shortcutsModal.classList.contains('hidden');
+  const shouldOpen = show !== undefined ? show : isHidden;
+  if (shouldOpen) {
+    shortcutsModal.classList.remove('hidden');
+  } else {
+    shortcutsModal.classList.add('hidden');
+  }
+}
+
+if (btnShortcuts) {
+  btnShortcuts.addEventListener('click', () => toggleShortcutsModal(true));
+}
+if (btnCloseShortcuts) {
+  btnCloseShortcuts.addEventListener('click', () => toggleShortcutsModal(false));
+}
+if (shortcutsModal) {
+  shortcutsModal.addEventListener('click', (e) => {
+    if (e.target === shortcutsModal) toggleShortcutsModal(false);
+  });
+}
 
 // Undo / Redo buttons dispatch to WebSocket server
 undoBtn.addEventListener('click', () => {
@@ -377,6 +410,21 @@ requestAnimationFrame(updateFps);
 // Global Keyboard Shortcuts
 window.addEventListener('keydown', (e) => {
   if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+    return;
+  }
+
+  // Close modals on Escape
+  if (e.key === 'Escape') {
+    toggleShortcutsModal(false);
+    if (colorPopover) colorPopover.classList.add('hidden');
+    if (btnColorPopover) btnColorPopover.classList.remove('active');
+    return;
+  }
+
+  // Toggle shortcuts help with '?'
+  if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+    e.preventDefault();
+    toggleShortcutsModal();
     return;
   }
 

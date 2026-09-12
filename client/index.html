@@ -99,11 +99,12 @@
       <div class="divider"></div>
 
       <!-- Stroke Width -->
-      <div class="stroke-width-group" title="Stroke Width">
+      <div class="stroke-width-group" title="Adjust stroke width">
         <input type="range" id="stroke-slider" class="stroke-slider" min="1" max="48" value="4" />
-        <div class="stroke-preview-circle">
+        <div class="stroke-preview-container">
           <div id="stroke-preview-dot" class="stroke-preview-dot" style="width: 4px; height: 4px;"></div>
         </div>
+        <span id="stroke-val-badge" class="stroke-val-badge">4px</span>
       </div>
 
       <div class="divider"></div>
@@ -140,6 +141,13 @@
           </svg>
           <span>Export</span>
         </button>
+        <button id="btn-shortcuts" class="btn-tool btn-icon-only" title="Keyboard Shortcuts (?)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -167,6 +175,29 @@
     <div id="stat-fps">60 FPS</div>
     <div id="stat-strokes">0 strokes</div>
   </footer>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="shortcuts-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>⚡ Keyboard Shortcuts</span>
+        </div>
+        <button id="btn-close-shortcuts" class="modal-close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-item"><span class="shortcut-desc">Brush Tool</span><kbd>B</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Eraser Tool</span><kbd>E</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Global Undo</span><div class="kbd-combo"><kbd>Ctrl</kbd><span>+</span><kbd>Z</kbd></div></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Global Redo</span><div class="kbd-combo"><kbd>Ctrl</kbd><span>+</span><kbd>Y</kbd></div></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Zoom In</span><kbd>+</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Zoom Out</span><kbd>-</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Reset Zoom</span><kbd>0</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Toggle Grid</span><kbd>G</kbd></div>
+        <div class="shortcut-item"><span class="shortcut-desc">Shortcuts Help</span><kbd>?</kbd></div>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="/main.ts"></script>
 </body>
