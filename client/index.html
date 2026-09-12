@@ -38,18 +38,61 @@
 
       <div class="divider"></div>
 
-      <!-- Color Palette -->
+      <!-- Color Selection & Popover -->
       <div class="color-picker-group">
-        <div class="color-swatch active" data-color="#2563eb" style="background-color: #2563eb;" title="Blue"></div>
-        <div class="color-swatch" data-color="#ef4444" style="background-color: #ef4444;" title="Red"></div>
-        <div class="color-swatch" data-color="#10b981" style="background-color: #10b981;" title="Green"></div>
-        <div class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;" title="Amber"></div>
-        <div class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;" title="Purple"></div>
-        <div class="color-swatch" data-color="#0f172a" style="background-color: #0f172a;" title="Black"></div>
+        <!-- Quick-access primary swatches -->
+        <div class="quick-swatches">
+          <div class="color-swatch active" data-color="#2563eb" style="background-color: #2563eb;" title="Blue"></div>
+          <div class="color-swatch" data-color="#ef4444" style="background-color: #ef4444;" title="Red"></div>
+          <div class="color-swatch" data-color="#10b981" style="background-color: #10b981;" title="Green"></div>
+          <div class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;" title="Amber"></div>
+          <div class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;" title="Purple"></div>
+          <div class="color-swatch" data-color="#0f172a" style="background-color: #0f172a;" title="Black"></div>
+        </div>
 
-        <div class="color-custom-wrapper" title="Custom color picker">
-          <input type="color" id="color-custom" class="color-custom-input" value="#2563eb" />
-          <div id="color-custom-preview" class="color-custom-preview" style="background-color: #2563eb;"></div>
+        <!-- Popover trigger for 14 curated swatches, custom picker & recent colors -->
+        <div class="color-dropdown-wrapper">
+          <button id="btn-color-popover" class="btn-color-popover" title="More Colors & Custom Picker">
+            <span id="color-active-circle" class="color-active-circle" style="background-color: #2563eb;"></span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <div id="color-popover" class="color-popover hidden">
+            <div class="popover-title-row">
+              <span>Palette</span>
+              <label class="custom-picker-label" title="Choose any custom color">
+                <span class="custom-picker-icon">🎨</span>
+                <span class="custom-picker-text">Custom</span>
+                <input type="color" id="color-custom" class="color-custom-input" value="#2563eb" />
+              </label>
+            </div>
+
+            <!-- 14 Curated Palette Swatches -->
+            <div class="curated-grid" id="curated-palette">
+              <div class="color-swatch" data-color="#0f172a" style="background-color: #0f172a;" title="Black"></div>
+              <div class="color-swatch" data-color="#475569" style="background-color: #475569;" title="Slate"></div>
+              <div class="color-swatch" data-color="#94a3b8" style="background-color: #94a3b8;" title="Gray"></div>
+              <div class="color-swatch" data-color="#ef4444" style="background-color: #ef4444;" title="Red"></div>
+              <div class="color-swatch" data-color="#f97316" style="background-color: #f97316;" title="Orange"></div>
+              <div class="color-swatch" data-color="#f59e0b" style="background-color: #f59e0b;" title="Amber"></div>
+              <div class="color-swatch" data-color="#84cc16" style="background-color: #84cc16;" title="Lime"></div>
+              <div class="color-swatch" data-color="#10b981" style="background-color: #10b981;" title="Emerald"></div>
+              <div class="color-swatch" data-color="#06b6d4" style="background-color: #06b6d4;" title="Cyan"></div>
+              <div class="color-swatch" data-color="#2563eb" style="background-color: #2563eb;" title="Blue"></div>
+              <div class="color-swatch" data-color="#6366f1" style="background-color: #6366f1;" title="Indigo"></div>
+              <div class="color-swatch" data-color="#8b5cf6" style="background-color: #8b5cf6;" title="Purple"></div>
+              <div class="color-swatch" data-color="#d946ef" style="background-color: #d946ef;" title="Fuchsia"></div>
+              <div class="color-swatch" data-color="#ec4899" style="background-color: #ec4899;" title="Pink"></div>
+            </div>
+
+            <!-- Recent Colors (Last 5 Used) -->
+            <div class="recent-colors-section">
+              <div class="recent-title">Recent Colors</div>
+              <div class="recent-grid" id="recent-colors-grid">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
