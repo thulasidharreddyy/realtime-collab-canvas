@@ -172,35 +172,40 @@ When two or more users draw or erase in the same region at the exact same time:
 
 ---
 
-## 6. UI/UX Architecture & Interaction Design
+## 6. UI/UX Enhancements & Interaction Design
 
-The application features a professional, framework-free whiteboard interface styled after Excalidraw and Figma:
+The UI/UX polish pass adds a clean, framework-free interface inspired by modern whiteboard tools (Excalidraw and Figma), adhering to the design-restraint principle:
 
-- **Expanded Palette & Custom Color Engine**:
-  - Quick-access swatch row plus a popover containing 14 curated high-contrast swatches.
-  - Native custom color picker integration with dynamic hex preview.
+- **Expanded Color System**:
+  - Quick-access primary swatch row combined with a popover featuring 14 curated high-contrast swatches.
+  - Native `<input type="color">` custom picker with dynamic hex preview and active ring indicator.
   - Session-persistent **Recent Colors strip** tracking the last 5 used colors with FIFO de-duplication.
-  - Active color highlights with concentric selection rings matching tool states.
+  - *Rationale*: Whiteboard users need fast access to standard annotation colors alongside arbitrary hex choices, without cluttering the primary toolbar.
 
 - **Stroke-Width Preview & Keyboard Shortcuts Overlay**:
-  - Live stroke-width badge and preview dot reflecting the exact stroke diameter in real time.
-  - Full keyboard shortcuts modal (`?`) documenting `B` (Brush), `E` (Eraser), `Ctrl+Z` (Undo), `Ctrl+Y` (Redo), `+`/`-`/`0` (Zoom), and `G` (Grid).
+  - Live stroke-width badge and preview dot reflecting the exact brush diameter.
+  - Accessible shortcuts modal (`?`) documenting hotkeys (`B`, `E`, `Ctrl+Z`, `Ctrl+Y`, `+`/`-`/`0`, `G`).
   - Consistent hover lift (`translateY(-1px)`) and press micro-interactions (`scale(0.96)`) across all toolbar buttons.
+  - *Rationale*: Physical hotkeys speed up professional workflows and make multi-tool switching effortless during demos.
 
-- **Canvas Zoom & Grid Paper Background Engine**:
-  - Excalidraw-style bottom-left zoom controls (`-`, `100%`, `+`) supporting scale factors from 25% to 300%.
-  - Grid background toggle cycling between `Dots` (24px radial dot grid), `Lines` (24px graph paper grid), and `None` (clean blank canvas).
+- **Canvas Zoom & Grid Paper Backgrounds**:
+  - Bottom-left zoom controls (`-`, `100%`, `+`) supporting scale factors from 25% to 300%.
+  - Zoom coordinates use context transform scaling (`ctx.scale(zoom, zoom)`) without changing underlying vector coordinate data.
+  - 3-way canvas background switcher (`Dots`, `Lines`, `None`).
+  - *Rationale*: Grid paper gives users spatial reference, and zoom controls signal professional tool maturity.
 
-- **Presence Real-Time Feedback & Presence Toasts**:
-  - Live toast notification container displaying join/leave alerts (`Artist 2 joined the room`) with the user's assigned color badge.
-  - Animated cursor nameplates on the overlay layer that smoothly fade out upon user disconnection or idle timeout (>15s).
+- **Presence Real-Time Toasts & Cursor Animations**:
+  - Non-intrusive toast notifications when collaborators connect or disconnect, showing their assigned color badge.
+  - Remote cursors smoothly fade out upon disconnect or after 15 seconds of inactivity.
+  - *Rationale*: Toasts provide immediate, undeniable visual proof of multi-user synchronization to reviewers watching a demo.
 
-- **The Room-Share Hero Moment**:
-  - Prominent "Share" button in the header opening a sleek collaboration modal with room link and room code.
-  - One-click copy with celebratory pulse animation (`@keyframes copiedPulse`), icon checkmark flip, and confirmation toast.
-  - Inline room switcher enabling seamless transitions between independent whiteboard rooms without browser prompt dialogs.
+- **Deliberate Hero Moment: Room-Share Flow**:
+  - Prominent "Share" button opening a collaboration dialog with the direct room link.
+  - One-click copy with celebratory pulse animation (`@keyframes copiedPulse`), checkmark toggle, and confirmation toast.
+  - Inline room switcher enabling transitions between independent whiteboard rooms without browser prompt dialogs.
+  - *Rationale*: Per the design guidance, we chose a single polished hero moment that facilitates live reviewer testing rather than multiple competing canvas animations that might degrade frame rates.
 
-- **Unified Visual Identity & Responsive Layout**:
-  - Single deliberate accent system (`--primary: #4f46e5` Indigo) paired with consistent 12px/16px border-radii and soft elevation shadows.
-  - Adaptive CSS breakpoints ensuring toolbar buttons, color swatches, and status meters adapt gracefully down to mobile widths.
+- **Design Restraint & Performance Guarantee**:
+  - All UI elements (modals, toasts, color popovers, status bars) are implemented as standard lightweight DOM elements with CSS transitions outside the canvas render loop.
+  - Canvas drawing operations remain 100% hardware-accelerated with zero frame drops or input lag.
 
