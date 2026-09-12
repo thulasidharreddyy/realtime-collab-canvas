@@ -1,6 +1,6 @@
 # Real-Time Collaborative Drawing Canvas
 
-A high-performance multi-user whiteboard application built with **vanilla TypeScript**, the **raw HTML5 Canvas 2D API**, and a **Node.js + native WebSocket (`ws`)** backend.
+A multi-user drawing canvas built with vanilla TypeScript, raw HTML5 2D canvas, and a Node.js WebSocket backend.
 
 ---
 
@@ -26,18 +26,17 @@ Open your browser to: **`http://localhost:3000`**
 
 ## How to Test Multi-User Collaboration
 
-1. Open **`http://localhost:3000`** in a Google Chrome window.
-2. Open another window in **Firefox, Microsoft Edge, or a Chrome Incognito tab** at **`http://localhost:3000`**.
-3. **Real-Time Drawing**: Draw with the brush or eraser in Window 1. Notice that the stroke appears in Window 2 *while you are drawing*, not just when you lift your mouse.
-4. **Live Presence Cursors**: Move your mouse across the canvas in Window 1. Observe the colored pointer and user name tag updating live in Window 2 on the overlay layer.
+1. Open `http://localhost:3000` in a browser window.
+2. Open a second window (or an incognito tab) at `http://localhost:3000`.
+3. **Real-Time Drawing**: Draw with the brush or eraser in Window 1. The stroke renders in Window 2 incrementally as points arrive, rather than waiting for pointer release.
+4. **Presence Cursors**: Move the cursor in Window 1. Window 2 shows the colored cursor and name tag updating on the overlay layer.
 5. **Global Multi-User Undo / Redo**:
-   - Draw a blue circle in Window 1 (User 1).
-   - Draw a red square across it in Window 2 (User 2).
-   - Press **`Ctrl+Z`** (or click Undo) in Window 1.
-   - Observe that the red square (drawn by User 2) disappears across **both** windows simultaneously!
-   - Press **`Ctrl+Y`** (or click Redo) in Window 1 to restore it on both windows.
+   - Draw a blue stroke in Window 1 (User 1).
+   - Draw a red stroke across it in Window 2 (User 2).
+   - Press `Ctrl+Z` (or click Undo) in Window 1. The stroke from Window 2 is undone on both windows.
+   - Press `Ctrl+Y` (or click Redo) in Window 1 to restore it on both windows.
 6. **Room Switching**:
-   - Open `http://localhost:3000/?room=design-critique` to join an isolated canvas session. Only users in the same room will see each other's drawings and cursors.
+   - Open `http://localhost:3000/?room=design-critique`. Clients only receive events for the room they joined.
 
 ---
 
@@ -58,23 +57,24 @@ The test suite validates:
 
 ## Architecture Highlights
 
-- **Zero Frontend Frameworks**: 100% vanilla TypeScript and DOM APIs. No React, Vue, Svelte, or Angular.
-- **Zero Canvas Libraries**: Hand-rolled 2D Canvas rendering context with quadratic bezier curve midpoint smoothing (`quadraticCurveTo`), true pixel erasure (`destination-out`), and HiDPI Retina scaling (`devicePixelRatio`).
-- **Dual-Layer Canvas Engine**: Stacked canvas architecture isolating the drawing pixel buffer from the 60fps cursor overlay to eliminate unnecessary canvas redraws.
-- **Sub-Stroke Micro-Batching**: `requestAnimationFrame`-gated point batching at 60Hz prevents socket congestion during high-frequency pointer movements (120–1000Hz) while client-side prediction delivers 0ms local drawing latency.
-- **Authoritative Shared Operation History**: Monotonically sequenced room event log on the server ensuring deterministic state across all peers, with explicit conflict resolution for simultaneous overlapping strokes and erasures.
+The frontend is written in vanilla TypeScript using raw DOM APIs and the 2D canvas context—no UI frameworks or canvas libraries (like Fabric or Konva).
+
+- **Canvas rendering**: Strokes are smoothed using midpoint quadratic bezier curves (`quadraticCurveTo`). The eraser uses `destination-out` composite operations so it clears drawn pixels rather than painting white. Resolution is scaled by `devicePixelRatio` on startup and resize to keep lines sharp on high-DPI screens.
+- **Layering**: The canvas uses two stacked `<canvas>` elements. The bottom layer holds committed and in-progress strokes. The top layer handles remote cursors and selection overlays at 60fps without clearing or redrawing the drawing buffer.
+- **Network streaming**: Local input renders immediately in the `pointermove` handler (client-side prediction). To avoid saturating the socket at high pointer frequencies (120–1000Hz), intermediate points are buffered and flushed once per frame via `requestAnimationFrame`. Cursor position broadcasts are throttled to ~30ms.
+- **Ordering and state**: The server assigns each stroke an incrementing sequence number (`seq`) on `stroke_start`. Global undo/redo traverses this shared operation log, marking strokes active or undone (tombstoning) and broadcasting a sync event. Clients replay active strokes in sequence order on undo/redo, keeping canvas state deterministic across browsers.
 
 ---
 
-## UI/UX & Interactive Polish (Figma / Excalidraw Aesthetic)
+## UI Features
 
-- **Expanded Palette & Custom Color Engine**: 14-color curated palette dropdown, styled native color picker, and session-persistent **Recent Colors strip** (last 5 used).
-- **Stroke-Width Feedback**: Dynamic visual size badge and preview circle reflecting exact brush diameter.
-- **Keyboard Shortcuts Overlay (`?`)**: Quick modal detailing shortcuts for Brush (`B`), Eraser (`E`), Undo (`Ctrl+Z`), Redo (`Ctrl+Y`), Zoom (`+`/`-`/`0`), and Grid (`G`).
-- **Zoom & Grid Backgrounds**: Bottom-left zoom controls (25% to 300%) and 3-way background switcher (Dots, Graph Paper, Blank).
-- **Presence Real-Time Toasts**: Animated join/leave notifications with user-specific color avatars.
-- **Room-Share Hero Moment**: Share modal with one-click link copying, copy confirmation pulse animation (`@keyframes copiedPulse`), and instant room switching.
-- **Unified Visual Identity**: Crisp indigo theme (`#4f46e5`), elevation shadows, responsive breakpoints, and tactile button micro-interactions (`translateY(-1px)` on hover, `scale(0.96)` on press).
+- **Color selection**: 14 curated swatches, a native color picker, and a recent-colors strip that tracks the last 5 selected colors.
+- **Stroke width**: Adjustable slider with a dynamic preview circle reflecting the selected diameter.
+- **Keyboard shortcuts**: Overlay modal (`?`) listing hotkeys for brush (`B`), eraser (`E`), undo (`Ctrl+Z`), redo (`Ctrl+Y`), zoom (`+`/`-`/`0`), and grid (`G`).
+- **View controls**: Bottom-left controls for canvas zoom (25%–300%) and background switching (dots, graph paper, blank).
+- **Presence notifications**: Corner toasts announce when collaborators join or leave.
+- **Room sharing**: A share dialog with one-click link copying and an inline room switcher.
+- **Export**: Generates a PNG export of the artwork on a solid background.
 
 For full architectural diagrams, WebSocket message shapes, and interview defense details, see **[ARCHITECTURE.md](./ARCHITECTURE.md)**.
 
