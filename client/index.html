@@ -151,11 +151,21 @@
       </div>
     </div>
 
-    <!-- Active Users List -->
+    <!-- Active Users List & Share Button -->
     <div class="users-panel" id="users-panel" title="Connected Users">
       <div class="users-list" id="users-list">
         <!-- User badges injected dynamically -->
       </div>
+      <button id="btn-share-room" class="btn-share-header" title="Share Room Link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        <span>Share</span>
+      </button>
     </div>
   </header>
 
@@ -222,6 +232,37 @@
         <div class="shortcut-item"><span class="shortcut-desc">Reset Zoom</span><kbd>0</kbd></div>
         <div class="shortcut-item"><span class="shortcut-desc">Toggle Grid</span><kbd>G</kbd></div>
         <div class="shortcut-item"><span class="shortcut-desc">Shortcuts Help</span><kbd>?</kbd></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Room Modal (Hero Moment) -->
+  <div id="share-modal" class="modal-backdrop hidden">
+    <div class="modal-card share-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="share-icon-badge">🔗</span>
+          <span>Collaborate Live</span>
+        </div>
+        <button id="btn-close-share" class="modal-close-btn" title="Close (Esc)">&times;</button>
+      </div>
+      <p class="share-description">Invite teammates to draw on this whiteboard together with live synchronization.</p>
+      
+      <div class="share-link-box">
+        <input type="text" id="share-url-input" class="share-url-input" readonly />
+        <button id="btn-copy-share-url" class="btn-copy-link" title="Copy shareable link">
+          <span id="copy-btn-icon">📋</span>
+          <span id="copy-btn-text">Copy Link</span>
+        </button>
+      </div>
+
+      <div class="share-divider">
+        <span>or join a different room</span>
+      </div>
+
+      <div class="switch-room-row">
+        <input type="text" id="switch-room-input" class="switch-room-input" placeholder="Enter room name (e.g. design-crit)..." />
+        <button id="btn-switch-room-go" class="btn-switch-room">Join Room</button>
       </div>
     </div>
   </div>

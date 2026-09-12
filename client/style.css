@@ -800,3 +800,196 @@ kbd {
   display: inline-block;
   line-height: 1.4;
 }
+
+/* Share Button in Header */
+.btn-share-header {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #ffffff;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 4px;
+}
+
+.btn-share-header:hover {
+  background: linear-gradient(135deg, #4338ca, #4f46e5);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-share-header:active {
+  transform: scale(0.96);
+  box-shadow: 0 1px 4px rgba(79, 70, 229, 0.2);
+}
+
+/* Share Room Modal */
+.share-card {
+  max-width: 440px;
+}
+
+.share-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #eef2ff;
+  font-size: 0.95rem;
+}
+
+.share-description {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.share-link-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 4px 4px 4px 10px;
+  margin-bottom: 16px;
+}
+
+.share-url-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--text-primary);
+  outline: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-copy-link {
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-copy-link:hover {
+  background: var(--primary-hover);
+}
+
+.btn-copy-link:active {
+  transform: scale(0.96);
+}
+
+/* Hero Moment: Copied Success State & Pulse Animation */
+.btn-copy-link.copied {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  animation: copiedPulse 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes copiedPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.share-divider {
+  position: relative;
+  text-align: center;
+  margin: 16px 0;
+}
+
+.share-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border-color);
+  z-index: 1;
+}
+
+.share-divider span {
+  position: relative;
+  z-index: 2;
+  background: var(--bg-surface-elevated);
+  padding: 0 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.switch-room-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.switch-room-input {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.switch-room-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+  background: #ffffff;
+}
+
+.btn-switch-room {
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-switch-room:hover {
+  background: #e2e8f0;
+}
+
+.btn-switch-room:active {
+  transform: scale(0.96);
+}

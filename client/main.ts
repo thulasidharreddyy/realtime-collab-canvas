@@ -413,18 +413,102 @@ if (exportBtn) {
   });
 }
 
-// Room Switching and Share Link
-roomDisplay.addEventListener('click', () => {
-  const currentUrl = window.location.href;
-  const target = prompt(
-    `Current Room Link:\n${currentUrl}\n\nEnter a new room name to join, or click Cancel:`,
-    currentRoomId
-  );
-  if (target && target.trim() && target.trim() !== currentRoomId) {
+// Share Room Modal Wiring (Hero Moment)
+const btnShareRoom = document.getElementById('btn-share-room') as HTMLButtonElement | null;
+const shareModal = document.getElementById('share-modal') as HTMLElement | null;
+const btnCloseShare = document.getElementById('btn-close-share') as HTMLButtonElement | null;
+const shareUrlInput = document.getElementById('share-url-input') as HTMLInputElement | null;
+const btnCopyShareUrl = document.getElementById('btn-copy-share-url') as HTMLButtonElement | null;
+const copyBtnIcon = document.getElementById('copy-btn-icon') as HTMLElement | null;
+const copyBtnText = document.getElementById('copy-btn-text') as HTMLElement | null;
+const switchRoomInput = document.getElementById('switch-room-input') as HTMLInputElement | null;
+const btnSwitchRoomGo = document.getElementById('btn-switch-room-go') as HTMLButtonElement | null;
+
+function toggleShareModal(open: boolean): void {
+  if (!shareModal) return;
+  if (open) {
+    if (shareUrlInput) shareUrlInput.value = window.location.href;
+    shareModal.classList.remove('hidden');
+    shareModal.classList.add('visible');
+    if (btnCopyShareUrl) {
+      btnCopyShareUrl.classList.remove('copied');
+      if (copyBtnIcon) copyBtnIcon.textContent = '📋';
+      if (copyBtnText) copyBtnText.textContent = 'Copy Link';
+    }
+    setTimeout(() => {
+      if (shareUrlInput) shareUrlInput.select();
+    }, 50);
+  } else {
+    shareModal.classList.remove('visible');
+    shareModal.classList.add('hidden');
+  }
+}
+
+if (btnShareRoom) {
+  btnShareRoom.addEventListener('click', () => toggleShareModal(true));
+}
+if (btnCloseShare) {
+  btnCloseShare.addEventListener('click', () => toggleShareModal(false));
+}
+if (shareModal) {
+  shareModal.addEventListener('click', (e) => {
+    if (e.target === shareModal) toggleShareModal(false);
+  });
+}
+
+if (btnCopyShareUrl) {
+  btnCopyShareUrl.addEventListener('click', async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+      } else if (shareUrlInput) {
+        shareUrlInput.select();
+        document.execCommand('copy');
+      }
+    } catch {
+      if (shareUrlInput) {
+        shareUrlInput.select();
+        document.execCommand('copy');
+      }
+    }
+
+    // Hero moment: Copied feedback animation
+    btnCopyShareUrl.classList.add('copied');
+    if (copyBtnIcon) copyBtnIcon.textContent = '✅';
+    if (copyBtnText) copyBtnText.textContent = 'Copied!';
+    showToast('Room link copied to clipboard! Share it to collaborate live.', '🔗', '#10b981');
+
+    setTimeout(() => {
+      btnCopyShareUrl.classList.remove('copied');
+      if (copyBtnIcon) copyBtnIcon.textContent = '📋';
+      if (copyBtnText) copyBtnText.textContent = 'Copy Link';
+    }, 2500);
+  });
+}
+
+function handleSwitchRoom(): void {
+  if (!switchRoomInput) return;
+  const val = switchRoomInput.value.trim();
+  if (val && val !== currentRoomId) {
     const nextUrl = new URL(window.location.href);
-    nextUrl.searchParams.set('room', target.trim());
+    nextUrl.searchParams.set('room', val);
     window.location.href = nextUrl.toString();
   }
+}
+
+if (btnSwitchRoomGo) {
+  btnSwitchRoomGo.addEventListener('click', handleSwitchRoom);
+}
+if (switchRoomInput) {
+  switchRoomInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleSwitchRoom();
+  });
+}
+
+// Clicking room display badge in status bar also opens Share/Room modal
+roomDisplay.addEventListener('click', () => {
+  toggleShareModal(true);
 });
 
 // FPS Counter Loop
