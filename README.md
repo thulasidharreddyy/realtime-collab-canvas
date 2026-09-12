@@ -64,6 +64,18 @@ The test suite validates:
 - **Sub-Stroke Micro-Batching**: `requestAnimationFrame`-gated point batching at 60Hz prevents socket congestion during high-frequency pointer movements (120–1000Hz) while client-side prediction delivers 0ms local drawing latency.
 - **Authoritative Shared Operation History**: Monotonically sequenced room event log on the server ensuring deterministic state across all peers, with explicit conflict resolution for simultaneous overlapping strokes and erasures.
 
+---
+
+## UI/UX & Interactive Polish (Figma / Excalidraw Aesthetic)
+
+- **Expanded Palette & Custom Color Engine**: 14-color curated palette dropdown, styled native color picker, and session-persistent **Recent Colors strip** (last 5 used).
+- **Stroke-Width Feedback**: Dynamic visual size badge and preview circle reflecting exact brush diameter.
+- **Keyboard Shortcuts Overlay (`?`)**: Quick modal detailing shortcuts for Brush (`B`), Eraser (`E`), Undo (`Ctrl+Z`), Redo (`Ctrl+Y`), Zoom (`+`/`-`/`0`), and Grid (`G`).
+- **Zoom & Grid Backgrounds**: Bottom-left zoom controls (25% to 300%) and 3-way background switcher (Dots, Graph Paper, Blank).
+- **Presence Real-Time Toasts**: Animated join/leave notifications with user-specific color avatars.
+- **Room-Share Hero Moment**: Share modal with one-click link copying, copy confirmation pulse animation (`@keyframes copiedPulse`), and instant room switching.
+- **Unified Visual Identity**: Crisp indigo theme (`#4f46e5`), elevation shadows, responsive breakpoints, and tactile button micro-interactions (`translateY(-1px)` on hover, `scale(0.96)` on press).
+
 For full architectural diagrams, WebSocket message shapes, and interview defense details, see **[ARCHITECTURE.md](./ARCHITECTURE.md)**.
 
 ---

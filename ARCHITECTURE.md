@@ -169,3 +169,38 @@ When two or more users draw or erase in the same region at the exact same time:
 ### Single-Process Static + WebSocket Hosting
 - **Decision**: One Node.js process serving both static Vite-compiled client assets and the WebSocket endpoint on the same HTTP server port.
 - **Rationale**: Eliminates Cross-Origin Resource Sharing (CORS) complexity, avoids managing multiple deployment containers, and allows zero-configuration deployment to single-port cloud hosts like Render, Fly.io, or Railway.
+
+---
+
+## 6. UI/UX Architecture & Interaction Design
+
+The application features a professional, framework-free whiteboard interface styled after Excalidraw and Figma:
+
+- **Expanded Palette & Custom Color Engine**:
+  - Quick-access swatch row plus a popover containing 14 curated high-contrast swatches.
+  - Native custom color picker integration with dynamic hex preview.
+  - Session-persistent **Recent Colors strip** tracking the last 5 used colors with FIFO de-duplication.
+  - Active color highlights with concentric selection rings matching tool states.
+
+- **Stroke-Width Preview & Keyboard Shortcuts Overlay**:
+  - Live stroke-width badge and preview dot reflecting the exact stroke diameter in real time.
+  - Full keyboard shortcuts modal (`?`) documenting `B` (Brush), `E` (Eraser), `Ctrl+Z` (Undo), `Ctrl+Y` (Redo), `+`/`-`/`0` (Zoom), and `G` (Grid).
+  - Consistent hover lift (`translateY(-1px)`) and press micro-interactions (`scale(0.96)`) across all toolbar buttons.
+
+- **Canvas Zoom & Grid Paper Background Engine**:
+  - Excalidraw-style bottom-left zoom controls (`-`, `100%`, `+`) supporting scale factors from 25% to 300%.
+  - Grid background toggle cycling between `Dots` (24px radial dot grid), `Lines` (24px graph paper grid), and `None` (clean blank canvas).
+
+- **Presence Real-Time Feedback & Presence Toasts**:
+  - Live toast notification container displaying join/leave alerts (`Artist 2 joined the room`) with the user's assigned color badge.
+  - Animated cursor nameplates on the overlay layer that smoothly fade out upon user disconnection or idle timeout (>15s).
+
+- **The Room-Share Hero Moment**:
+  - Prominent "Share" button in the header opening a sleek collaboration modal with room link and room code.
+  - One-click copy with celebratory pulse animation (`@keyframes copiedPulse`), icon checkmark flip, and confirmation toast.
+  - Inline room switcher enabling seamless transitions between independent whiteboard rooms without browser prompt dialogs.
+
+- **Unified Visual Identity & Responsive Layout**:
+  - Single deliberate accent system (`--primary: #4f46e5` Indigo) paired with consistent 12px/16px border-radii and soft elevation shadows.
+  - Adaptive CSS breakpoints ensuring toolbar buttons, color swatches, and status meters adapt gracefully down to mobile widths.
+
